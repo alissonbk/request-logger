@@ -23,8 +23,9 @@ func NewSniffer() *Sniffer {
 func (sniffer *Sniffer) handlePacket(packet gopacket.Packet) {
 	strPacket := utils.BArrayToString(packet.Data())
 	if request.HasReadableContent(strPacket) {
-		requestContent := request.BuildRequestContent(strPacket)
-		fmt.Println(requestContent)
+		content := request.BuildRequestContent(strPacket)
+		//var content = strPacket
+		fmt.Println(content)
 	} else {
 		fmt.Println("-----------------Received a unknown packet-----------------")
 	}
