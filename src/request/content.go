@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +22,7 @@ type Content struct {
 	Referer        string
 	AcceptEncoding string
 	AcceptLanguage string
+	Date           string // FIXME: use date
 	Payload        string
 }
 
@@ -49,6 +51,7 @@ func (content *Content) IterateAndSetData(packet string) {
 		content.FindConnection(field, index, words)
 		content.FindReferer(field, index, words)
 		content.FindCacheControl(field, index, words)
+		content.FindDate(packet)
 	}
 }
 
@@ -98,6 +101,16 @@ func (content *Content) FindReferer(field string, index int, words []string) {
 		nextWord := words[index+1]
 		content.Referer = nextWord
 	}
+}
+
+func (content *Content) FindDate(packet string) {
+	raw := strconv.Quote(packet)
+	_, after, _ := strings.Cut(strings.ToUpper(raw), "DATE:")
+	before, _, _ := strings.Cut(after, "\\R\\N")
+	if before != "" {
+		content.Date = strings.TrimSpace(before)
+	}
+
 }
 
 // FindMethod Find the used method from the given string
