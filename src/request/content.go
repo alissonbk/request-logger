@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"log"
+	"requestlogger/src/utils"
 	"strconv"
 	"strings"
 )
@@ -26,7 +27,11 @@ type Content struct {
 	ContentType      []string
 	ContentEncoding  string
 	ContentLength    int32
-	Payload          string
+	Cookies          []string
+	Authorization    string // TODO
+	ClientID         string
+	ClientSessionID  string
+	Payload          string // TODO
 }
 
 // BuildRequestContent Receive packet as a string and return the content
@@ -63,6 +68,10 @@ func (content *Content) IterateAndSetData(packet string) {
 		content.FindAccept(field, index, words)
 		content.FindAcceptLanguage(field, index, words)
 		content.FindContentLength(field, index, words)
+		content.FindCookies(packet)
+		content.FindClientSessionID(field, index, words)
+		content.FindClientID(field, index, words)
+		content.FindPayload(packet)
 	}
 }
 
@@ -191,6 +200,43 @@ func (content *Content) FindAcceptEncoding(packet string) {
 	before, _, _ := strings.Cut(after, "\\r\\n")
 	if before != "" {
 		content.AcceptEncoding = strings.TrimSpace(before)
+	}
+}
+
+func (content *Content) FindCookies(packet string) {
+	raw := strconv.Quote(packet)
+	_, after, _ := strings.Cut(raw, "Cookie:")
+	before, _, _ := strings.Cut(after, "\\r\\n")
+	if before != "" {
+		split := strings.Split(before, ";")
+		content.Cookies = split
+	}
+}
+
+func (content *Content) FindClientID(field string, index int, words []string) {
+	f := strings.ToUpper(field)
+	if strings.Contains(f, "CLIENT-ID:") {
+		nextWord := words[index+1]
+		content.ClientID = nextWord
+	}
+}
+
+func (content *Content) FindClientSessionID(field string, index int, words []string) {
+	f := strings.ToUpper(field)
+	if strings.Contains(f, "CLIENT-SESSION-ID:") {
+		nextWord := words[index+1]
+		content.ClientSessionID = nextWord
+	}
+}
+
+func (content *Content) FindPayload(packet string) {
+	raw := strconv.Quote(packet)
+	_, after, _ := strings.Cut(raw, "\\r\\n\\r")
+	after = strings.Replace(after, "\\n", "", -1)
+	after = strings.Replace(after, "\\u", "", -1)
+	after = utils.RemoveLastQuote(after)
+	if after != "" {
+		content.Payload = after
 	}
 }
 

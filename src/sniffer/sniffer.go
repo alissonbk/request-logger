@@ -24,7 +24,7 @@ func (sniffer *Sniffer) handlePacket(packet gopacket.Packet) {
 	strPacket := utils.BArrayToString(packet.Data())
 	if request.HasReadableContent(strPacket) {
 		content := request.BuildRequestContent(strPacket)
-		//var content = strPacket
+		//var content = strconv.Quote(strPacket)
 		fmt.Println(content)
 	} else {
 		fmt.Println("-----------------Received a unknown packet-----------------")
