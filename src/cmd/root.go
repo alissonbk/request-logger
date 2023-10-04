@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"requestlogger/src/sniffer"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +20,19 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		sniffer.StartSniffer(sniffer.NewSniffer())
+		iface, _ := cmd.Flags().GetString("iface")
+		port, _ := cmd.Flags().GetString("port")
+
+		if strings.TrimSpace(port) == "" {
+			port = "8080"
+		}
+
+		if iface != "" {
+			sniffer.StartSniffer(sniffer.NewSniffer(iface, port))
+		} else {
+			log.Fatal("You need to specify an interface, ex: requestlogger --iface=xxxxx")
+		}
+
 	},
 }
 
@@ -40,5 +54,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
+	rootCmd.PersistentFlags().String("iface", "", "Network interface where you want to log requests from")
+	rootCmd.PersistentFlags().String("port", "", "Port to listen")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
