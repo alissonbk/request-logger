@@ -26,13 +26,16 @@ func (sniffer *Sniffer) handlePacket(packet gopacket.Packet) {
 	if request.HasReadableContent(strPacket) {
 		content := request.BuildRequestContent(strPacket)
 		//var content = strconv.Quote(strPacket)
-		fmt.Println(content)
+		if content != "" {
+			fmt.Println("------------------------------------------------------------------------------------------------------------------------")
+			fmt.Println(content)
+		}
 	} else {
-		fmt.Println("-----------------Received a unknown packet-----------------")
-		content := request.BuildRequestContent(strPacket)
-		//var content = strconv.Quote(strPacket)
-		fmt.Println(content)
-		fmt.Println("-----------------End of unknown packet-----------------")
+		// fmt.Println("-----------------Received a unknown packet-----------------")
+		// content := request.BuildRequestContent(strPacket)
+		// //var content = strconv.Quote(strPacket)
+		// fmt.Println(content)
+		// fmt.Println("-----------------End of unknown packet-----------------")
 	}
 
 }

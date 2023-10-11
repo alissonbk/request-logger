@@ -38,6 +38,9 @@ type Content struct {
 func BuildRequestContent(packet string) string {
 	content := &Content{}
 	content.IterateAndSetData(packet)
+	if content.Referer == "" {
+		return ""
+	}
 	jsonContent, err := json.MarshalIndent(content, "", " ")
 	if err != nil {
 		log.Fatal("Failed to parse JSON!")
@@ -95,8 +98,11 @@ func (content *Content) FindServer(packet string) {
 func (content *Content) FindHost(field string, index int, words []string) {
 	f := strings.ToUpper(field)
 	if strings.Contains(f, "HOST:") {
-		nextWord := words[index+1]
-		content.Host = nextWord
+		if index+1 < len(words) {
+			nextWord := words[index+1]
+			content.Host = nextWord
+		}
+
 	}
 }
 
